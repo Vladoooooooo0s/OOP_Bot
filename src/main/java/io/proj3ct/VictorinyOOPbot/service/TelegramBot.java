@@ -15,10 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Component
@@ -39,9 +36,9 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Autowired
     private QuestionsRepository questionsRepository;
 
-    private Long currentCategoryId;
-
     final BotConfig config;
+
+    private final Map<Long, GameSession> userSessions = new HashMap<>();
 
     public TelegramBot(BotConfig config) {
         this.config = config;
@@ -57,13 +54,16 @@ public class TelegramBot extends TelegramLongPollingBot {
         return config.getToken();
     }
 
-    private void finishGame(long chatId) {
-        askedQuestions.clear();
 
-        sendMessage(chatId, "Игра завершена. Ты ответил правильно на " + correctAnswersCount + " вопросов.", false);
-        correctAnswersCount = 0;
+    private void finishGame(long chatId) {
+        GameSession session = userSessions.get(chatId);
+        if (session != null) {
+            sendMessage(chatId, "Игра завершена. Ты ответил правильно на " + session.getCorrectAnswersCount() + " вопрос(ов).", false);
+            userSessions.remove(chatId);
+        }
         sendCategoryOptions(chatId);
     }
+
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -71,16 +71,18 @@ public class TelegramBot extends TelegramLongPollingBot {
             String callbackData = update.getCallbackQuery().getData();
             long chatId = update.getCallbackQuery().getMessage().getChatId();
 
+            GameSession session = userSessions.computeIfAbsent(chatId, id -> new GameSession());
+
             if (callbackData.startsWith("CATEGORY_")) {
                 long categoryId = Long.parseLong(callbackData.split("_")[1]);
-                currentCategoryId = categoryId;
-                Category selectedCategory = categoryService.getCategoryById(categoryId);
+                session.setCurrentCategoryId(categoryId);
 
-                sendMessage(chatId, "Ты выбрал категорию: " + selectedCategory.getName(), true);  // Показываем кнопку завершения
-                sendQuestion(chatId, categoryId);  // Задаем вопрос
+                Category selectedCategory = categoryService.getCategoryById(categoryId);
+                sendMessage(chatId, "Ты выбрал категорию: " + selectedCategory.getName(), true);
+                sendQuestion(chatId, categoryId);
             } else if (callbackData.startsWith("ANSWER_")) {
                 long answerId = Long.parseLong(callbackData.split("_")[1]);
-                checkAnswer(chatId, answerId);  // Проверка ответа
+                checkAnswer(chatId, answerId);
             } else if (callbackData.equals("FINISH_GAME")) {
                 finishGame(chatId);
             }
@@ -106,6 +108,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
+
     private void registerUser(Message msg){
         if(userRepository.findById(msg.getChatId()).isEmpty()){
             var chatId = msg.getChatId();
@@ -123,6 +126,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
+
     private void startCommandReceived(long chatId, String name) {
         String answer = "Привет, " + name + "! 👋\n" +
                 "Чтобы начать, выбери категорию вопросов, которая тебе интересна. " +
@@ -131,6 +135,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         sendMessage(chatId, answer, false);
         sendCategoryOptions(chatId);
     }
+
 
     private void sendMessage(long chatId, String textToSend, boolean showFinishButton) {
         SendMessage message = new SendMessage();
@@ -144,7 +149,6 @@ public class TelegramBot extends TelegramLongPollingBot {
             keyboard.add(row);
         }
 
-        // Устанавливаем клавиатуру, если она нужна
         if (!keyboard.isEmpty()) {
             ReplyKeyboardMarkup replyMarkup = new ReplyKeyboardMarkup();
             replyMarkup.setKeyboard(keyboard);
@@ -159,6 +163,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
+
 
     private void sendCategoryOptions(long chatId) {
         List<Category> categories = categoryService.getAllCategories();
@@ -188,35 +193,29 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private Set<Long> askedQuestions = new HashSet<>();
-    private int correctAnswersCount = 0;
 
     private void sendQuestion(long chatId, long categoryId) {
+        GameSession session = userSessions.get(chatId);
+        if (session == null) {
+            sendMessage(chatId, "Ошибка! Сессия не найдена.", false);
+            return;
+        }
+
         List<Questions> questions = questionsRepository.findByCategoryId(categoryId);
-        if (questions.isEmpty()) {
+        if (questions.isEmpty() || session.getAskedQuestions().size() == questions.size()) {
             sendMessage(chatId, "В этой категории больше нет вопросов.", false);
             finishGame(chatId);
             return;
         }
 
-        if (askedQuestions.size() == questions.size()) {
-            sendMessage(chatId, "Вы ответили на все вопросы! Завершаем игру.", false);
-            finishGame(chatId);
-            return;
-        }
-
-        Questions question = questionsService.getRandomQuestionByCategoryId(categoryId, askedQuestions);
-
+        Questions question = questionsService.getRandomQuestionByCategoryId(categoryId, session.getAskedQuestions());
         if (question == null) {
             sendMessage(chatId, "В этой категории больше нет вопросов.", false);
             finishGame(chatId);
             return;
         }
 
-        askedQuestions.add(question.getId());
-
-        System.out.println("Asked questions size: " + askedQuestions.size());
-        System.out.println("Total questions in category: " + questions.size());
+        session.addAskedQuestion(question.getId());
 
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
@@ -244,25 +243,23 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
+
     private void checkAnswer(long chatId, long answerId) {
-        if (currentCategoryId == null) {
-            sendMessage(chatId, "Ошибка! Категория не была выбрана.", false);
+        GameSession session = userSessions.get(chatId);
+        if (session == null) {
+            sendMessage(chatId, "Ошибка! Сессия не найдена.", false);
             return;
         }
 
         boolean isCorrect = answersService.isAnswerCorrect(answerId);
-
-        System.out.println("Answer ID: " + answerId + ", isCorrect: " + isCorrect);
-
         if (isCorrect) {
-            correctAnswersCount++;
-            System.out.println("Correct answer count: " + correctAnswersCount);
+            session.incrementCorrectAnswers();
             sendMessage(chatId, "Правильный ответ! 🎉", true);
         } else {
             sendMessage(chatId, "Неправильно. Попробуй ответить на следующий вопрос.", true);
         }
 
-        sendQuestion(chatId, currentCategoryId);
+        sendQuestion(chatId, session.getCurrentCategoryId());
     }
 
 }
