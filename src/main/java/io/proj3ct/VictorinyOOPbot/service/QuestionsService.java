@@ -2,6 +2,7 @@ package io.proj3ct.VictorinyOOPbot.service;
 
 import io.proj3ct.VictorinyOOPbot.model.Questions;
 import io.proj3ct.VictorinyOOPbot.model.QuestionsRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 @Service
 public class QuestionsService {
 
@@ -24,16 +25,14 @@ public class QuestionsService {
             return null;
         }
 
-        System.out.println("Total questions in category: " + questions.size());
+        log.info("Total questions in category: {}", questions.size());
 
         List<Questions> availableQuestions = questions.stream()
                 .filter(question -> !askedQuestions.contains(question.getId()))
                 .collect(Collectors.toList());
 
-        System.out.println("Available questions: " + availableQuestions.size());
-        for (Questions q : availableQuestions) {
-            System.out.println("Available question ID: " + q.getId());
-        }
+        log.info("Available questions: {}", availableQuestions.size());
+        availableQuestions.forEach(q -> log.info("Available question ID: {}", q.getId()));
 
         if (availableQuestions.isEmpty()) {
             return null;

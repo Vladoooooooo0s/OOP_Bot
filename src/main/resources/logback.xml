@@ -1,0 +1,35 @@
+<configuration>
+
+    <property name="HOME_LOG" value="C:/Users/Алина/logs/oop_bot/app.log"/>
+
+    <appender name="FILE-ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${HOME_LOG}</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>C:/Users/Алина/logs/oop_bot/app.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <!-- каждый архивированный файл, максимальный размер 10MB -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- общий размер всех архивных файлов, если общий размер > 1GB, старые архивы будут удаляться -->
+            <totalSizeCap>1GB</totalSizeCap>
+            <!-- хранить логи 60 дней -->
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d %p %c{1} [%t] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="io.proj3ct.SpringDemoBot" level="debug" additivity="false">
+        <appender-ref ref="FILE-ROLLING"/>
+    </logger>
+
+    <root level="error">
+        <appender-ref ref="FILE-ROLLING"/>
+    </root>
+
+    <root level="info">
+        <appender-ref ref="FILE-ROLLING"/>
+    </root>
+
+</configuration>

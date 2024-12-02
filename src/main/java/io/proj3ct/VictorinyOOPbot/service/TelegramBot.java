@@ -2,6 +2,7 @@ package io.proj3ct.VictorinyOOPbot.service;
 
 import io.proj3ct.VictorinyOOPbot.config.BotConfig;
 import io.proj3ct.VictorinyOOPbot.model.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -17,7 +18,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.sql.Timestamp;
 import java.util.*;
 
-
+@Slf4j
 @Component
 public class TelegramBot extends TelegramLongPollingBot {
 
@@ -86,6 +87,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             } else if (callbackData.equals("FINISH_GAME")) {
                 finishGame(chatId);
             }
+
         } else if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
@@ -134,6 +136,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                 "Удачи!";
         sendMessage(chatId, answer, false);
         sendCategoryOptions(chatId);
+
+        log.info("Replied to user " + name);
     }
 
 
@@ -160,7 +164,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("Error occured " + e.getMessage());
         }
     }
 
@@ -196,6 +200,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private void sendQuestion(long chatId, long categoryId) {
         GameSession session = userSessions.get(chatId);
+
         if (session == null) {
             sendMessage(chatId, "Ошибка! Сессия не найдена.", false);
             return;
@@ -246,6 +251,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private void checkAnswer(long chatId, long answerId) {
         GameSession session = userSessions.get(chatId);
+
         if (session == null) {
             sendMessage(chatId, "Ошибка! Сессия не найдена.", false);
             return;
