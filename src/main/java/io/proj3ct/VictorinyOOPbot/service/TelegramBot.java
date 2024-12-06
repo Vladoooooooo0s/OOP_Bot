@@ -17,6 +17,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
@@ -37,9 +38,12 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Autowired
     private QuestionsRepository questionsRepository;
 
+    @Autowired
+    private QuizApiService quizApiService;
+
     final BotConfig config;
 
-    private final Map<Long, GameSession> userSessions = new HashMap<>();
+    private final Map<Long, GameSession> userSessions = new ConcurrentHashMap<>();
 
     public TelegramBot(BotConfig config) {
         this.config = config;
@@ -78,14 +82,33 @@ public class TelegramBot extends TelegramLongPollingBot {
                 long categoryId = Long.parseLong(callbackData.split("_")[1]);
                 session.setCurrentCategoryId(categoryId);
 
-                Category selectedCategory = categoryService.getCategoryById(categoryId);
-                sendMessage(chatId, "Ты выбрал категорию: " + selectedCategory.getName(), true);
-                sendQuestion(chatId, categoryId);
+
+                if (categoryId == -1L) { // Категория из API
+                    sendQuestionFromApi(chatId);
+                } else {
+                    Category selectedCategory = categoryService.getCategoryById(categoryId);
+                    sendMessage(chatId, "Ты выбрал категорию: " + selectedCategory.getName(), true);
+                    sendQuestion(chatId, categoryId);
+                }
+
             } else if (callbackData.startsWith("ANSWER_")) {
                 long answerId = Long.parseLong(callbackData.split("_")[1]);
                 checkAnswer(chatId, answerId);
+
             } else if (callbackData.equals("FINISH_GAME")) {
                 finishGame(chatId);
+
+            } else if (callbackData.startsWith("API_ANSWER_")) {
+                String userAnswerKey = callbackData.split("_")[2];
+
+                // Проверяем правильность ответа
+                boolean isCorrect = quizApiService.checkApiAnswer(userAnswerKey, session.getCurrentApiQuestion().getCorrectAnswers());
+
+                if (isCorrect) {
+                    sendMessage(chatId, "Верно! Молодец!", false);
+                } else {
+                    sendMessage(chatId, "Неправильно. Попробуй ещё раз!", false);
+                }
             }
 
         } else if (update.hasMessage() && update.getMessage().hasText()) {
@@ -251,13 +274,31 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private void checkAnswer(long chatId, long answerId) {
         GameSession session = userSessions.get(chatId);
-
         if (session == null) {
             sendMessage(chatId, "Ошибка! Сессия не найдена.", false);
             return;
         }
 
-        boolean isCorrect = answersService.isAnswerCorrect(answerId);
+        long categoryId = session.getCurrentCategoryId();
+        boolean isCorrect;
+
+        // Если категория ID -1 (API-опрос), проверяем ответ через QuizApiService
+        if (categoryId == -1) {
+            QuestionFromApi questionFromApi = session.getCurrentApiQuestion(); // Получаем текущий вопрос из сессии
+
+            if (questionFromApi == null) {
+                sendMessage(chatId, "Ошибка! Вопрос не найден.", false);
+                return;
+            }
+
+            // Проверяем правильность ответа через QuizApiService
+            isCorrect = quizApiService.checkApiAnswer("answer_" + answerId, questionFromApi.getCorrectAnswers());
+        } else {
+            // Старая логика для других категорий
+            isCorrect = answersService.isAnswerCorrect(answerId);
+        }
+
+        // Обработка результата
         if (isCorrect) {
             session.incrementCorrectAnswers();
             sendMessage(chatId, "Правильный ответ! 🎉", true);
@@ -265,7 +306,72 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage(chatId, "Неправильно. Попробуй ответить на следующий вопрос.", true);
         }
 
-        sendQuestion(chatId, session.getCurrentCategoryId());
+        // Отправка следующего вопроса
+        if (categoryId == -1) {
+            sendQuestionFromApi(chatId); // Отправка вопроса из API
+        } else {
+            sendQuestion(chatId, categoryId); // Отправка обычного вопроса
+        }
     }
+
+
+
+    private void sendQuestionFromApi(long chatId) {
+        try {
+            List<QuestionFromApi> questions = quizApiService.fetchQuizQuestions(15); // ID квиза
+
+            if (questions.isEmpty()) {
+                sendMessage(chatId, "Не удалось загрузить вопросы из API.", false);
+                return;
+            }
+
+            // Выбираем случайный вопрос
+            QuestionFromApi question = questions.get(new Random().nextInt(questions.size()));
+
+            // Сохраняем вопрос в сессии
+            GameSession session = userSessions.computeIfAbsent(chatId, id -> new GameSession());
+            session.setCurrentApiQuestion(question);
+
+            // Проверка на уже заданный вопрос
+            if (session.getAskedApiQuestions().contains(String.valueOf(question.getId()))) {
+                sendQuestionFromApi(chatId); // Рекурсивно вызываем метод, чтобы задать новый вопрос
+                return;
+            }
+
+            session.addAskedApiQuestion(String.valueOf(question.getId()));
+
+            // Отправляем вопрос пользователю
+            StringBuilder messageText = new StringBuilder("Вопрос: " + question.getQuestion() + "\n\n");
+
+            InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+            List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+            // Создаем кнопки для ответов
+            for (Map.Entry<String, String> entry : question.getAnswers().entrySet()) {
+                if (entry.getValue() != null) {
+                    InlineKeyboardButton button = new InlineKeyboardButton();
+                    button.setText(entry.getValue());
+                    button.setCallbackData("API_ANSWER_" + entry.getKey()); // CallbackData для ответа
+
+                    List<InlineKeyboardButton> row = new ArrayList<>();
+                    row.add(button);
+                    rows.add(row);
+                }
+            }
+
+            markup.setKeyboard(rows);
+
+            SendMessage message = new SendMessage();
+            message.setChatId(String.valueOf(chatId));
+            message.setText(messageText.toString());
+            message.setReplyMarkup(markup);
+
+            execute(message);
+        } catch (Exception e) {
+            sendMessage(chatId, "Ошибка при загрузке вопроса: " + e.getMessage(), false);
+        }
+    }
+
+
 
 }

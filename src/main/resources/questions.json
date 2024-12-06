@@ -1,0 +1,381 @@
+[ {
+  "id" : 1512,
+  "question" : "What happens if you use 'for' loop on an exhausted generator?",
+  "answers" : {
+    "answer_a" : "It raises a StopIteration exception",
+    "answer_b" : "It starts iterating from the beginning",
+    "answer_c" : "It does nothing",
+    "answer_d" : "It throws a RuntimeError",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "false",
+    "answer_b_correct" : "false",
+    "answer_c_correct" : "true",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 831,
+  "question" : "Which of the following is a cloud-hosted service from Docker that provides registry capabilities for public and private content.",
+  "answers" : {
+    "answer_a" : "Docker Swarm",
+    "answer_b" : "Docker Cloud",
+    "answer_c" : "Docker Hub",
+    "answer_d" : "Docker Compose",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "false",
+    "answer_b_correct" : "false",
+    "answer_c_correct" : "true",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 5457,
+  "question" : "How do you restrict a prop to accept only certain values?",
+  "answers" : {
+    "answer_a" : "Use 'type: Array'",
+    "answer_b" : "Add a 'required: true' key",
+    "answer_c" : "Use the 'validator' function to specify allowed values",
+    "answer_d" : "Use a lifecycle hook to filter values",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "false",
+    "answer_b_correct" : "false",
+    "answer_c_correct" : "true",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 1249,
+  "question" : "What command would you use to delete a specific pod in OpenShift?",
+  "answers" : {
+    "answer_a" : "oc remove pod <pod-name>",
+    "answer_b" : "oc delete pod <pod-name>",
+    "answer_c" : "oc clear pod <pod-name>",
+    "answer_d" : "oc stop pod <pod-name>",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "false",
+    "answer_b_correct" : "true",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 6022,
+  "question" : "How can you share data between sibling components in Vue?",
+  "answers" : {
+    "answer_a" : "Use a common parent component to manage shared state and pass data via props",
+    "answer_b" : "Emit events directly between siblings",
+    "answer_c" : "Use 'computed()' in both siblings",
+    "answer_d" : "Use the 'ref()' function",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "true",
+    "answer_b_correct" : "false",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 1132,
+  "question" : "Which specific OpenShift feature provides developers the ability to build images directly within OpenShift using source code?",
+  "answers" : {
+    "answer_a" : "Pods",
+    "answer_b" : "BuildConfigs",
+    "answer_c" : "Node Pools",
+    "answer_d" : "ImageStreams",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "false",
+    "answer_b_correct" : "true",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 1152,
+  "question" : "Which OpenShift command would you use to view all available resources in the current project, including pods, services, and routes?",
+  "answers" : {
+    "answer_a" : "oc get all",
+    "answer_b" : "oc get pods",
+    "answer_c" : "oc describe project",
+    "answer_d" : "oc show resources",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "true",
+    "answer_b_correct" : "false",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 1890,
+  "question" : "Which statement is true about threading in Python?",
+  "answers" : {
+    "answer_a" : "Threading allows Python to fully utilize multiple CPU cores",
+    "answer_b" : "Threading is mainly useful for I/O-bound tasks, not CPU-bound tasks",
+    "answer_c" : "Threading can only be used with the multiprocessing module",
+    "answer_d" : "Threading is always faster than multiprocessing",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "false",
+    "answer_b_correct" : "true",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 6582,
+  "question" : "How do you create a transition that happens when the user first sees the element in Vue?",
+  "answers" : {
+    "answer_a" : "Use the 'appear' attribute in the <transition> component",
+    "answer_b" : "Use 'v-model'",
+    "answer_c" : "Add 'v-bind'",
+    "answer_d" : "Use 'v-show'",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "true",
+    "answer_b_correct" : "false",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 6621,
+  "question" : "How can you use JavaScript hooks in a transition to modify an element's state during its entry phase?",
+  "answers" : {
+    "answer_a" : "Use the 'enter' JavaScript hook to modify the element's state during its entry",
+    "answer_b" : "Use 'v-if' to add elements conditionally",
+    "answer_c" : "Use 'beforeCreate' to modify state",
+    "answer_d" : "Add the changes directly in the CSS",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "true",
+    "answer_b_correct" : "false",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 3330,
+  "question" : "Which command is used to check your Ubuntu version?",
+  "answers" : {
+    "answer_a" : "Use 'lsb_release -a'",
+    "answer_b" : "Run 'ubuntuversion'",
+    "answer_c" : "Type 'os-version'",
+    "answer_d" : "Use 'version-check'",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "true",
+    "answer_b_correct" : "false",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 5099,
+  "question" : "What is the purpose of the `defaultMaxListeners` property in the EventEmitter module?",
+  "answers" : {
+    "answer_a" : "To set a default maximum for listeners on all EventEmitter instances",
+    "answer_b" : "To log a warning when events are emitted without listeners",
+    "answer_c" : "To limit the number of events emitted by an EventEmitter",
+    "answer_d" : "To disable the 'error' event globally",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "true",
+    "answer_b_correct" : "false",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 982,
+  "question" : "How to write an IF statement for executing some code if \"i\" is NOT equal to 5?",
+  "answers" : {
+    "answer_a" : "if (i != 5)",
+    "answer_b" : "if (i <> 5)",
+    "answer_c" : "if i =! 5 then",
+    "answer_d" : "if i <> 5",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "true",
+    "answer_b_correct" : "false",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 4405,
+  "question" : "What's the proper way to handle route transitions?",
+  "answers" : {
+    "answer_a" : "No transitions",
+    "answer_b" : "Framer Motion with exit animations",
+    "answer_c" : "Basic fades",
+    "answer_d" : "Page refresh",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "false",
+    "answer_b_correct" : "true",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 2476,
+  "question" : "What is the role of Django's URL dispatcher?",
+  "answers" : {
+    "answer_a" : "It handles form submissions",
+    "answer_b" : "It matches URLs to views",
+    "answer_c" : "It manages database queries",
+    "answer_d" : "It handles static files",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "false",
+    "answer_b_correct" : "true",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 6019,
+  "question" : "What is the purpose of Vue’s event emitting?",
+  "answers" : {
+    "answer_a" : "To allow a child component to communicate back to the parent component",
+    "answer_b" : "To modify child component props",
+    "answer_c" : "To change the DOM directly",
+    "answer_d" : "To share data between unrelated components",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "true",
+    "answer_b_correct" : "false",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 574,
+  "question" : "PHP scripts are enclosed within _______",
+  "answers" : {
+    "answer_a" : "<php> . . . </php>",
+    "answer_b" : "<p> . . . </p>",
+    "answer_c" : "?php . . . ?php",
+    "answer_d" : "<?php . . . ?>",
+    "answer_e" : "<? .... ?>",
+    "answer_f" : "<?php"
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "false",
+    "answer_b_correct" : "false",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "true",
+    "answer_e_correct" : "true",
+    "answer_f_correct" : "true"
+  }
+}, {
+  "id" : 4754,
+  "question" : "How can you check if a path points to a file or directory?",
+  "answers" : {
+    "answer_a" : "Use fs.stat() and check isFile() or isDirectory() methods",
+    "answer_b" : "Use fs.readFile() and handle errors",
+    "answer_c" : "Use fs.watch() for monitoring",
+    "answer_d" : "Use fs.existsSync() directly",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "true",
+    "answer_b_correct" : "false",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 3210,
+  "question" : "Which command allows you to change the default gateway in Ubuntu?",
+  "answers" : {
+    "answer_a" : "Use 'sudo ip route add default via gateway_ip'",
+    "answer_b" : "Run 'setgateway gateway_ip'",
+    "answer_c" : "Type 'gwchange default'",
+    "answer_d" : "Use 'netcfg default-gateway'",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "true",
+    "answer_b_correct" : "false",
+    "answer_c_correct" : "false",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+}, {
+  "id" : 1441,
+  "question" : "What is the purpose of the 'functools.wraps' decorator?",
+  "answers" : {
+    "answer_a" : "To add extra logging",
+    "answer_b" : "To modify the return value of a function",
+    "answer_c" : "To preserve the original function’s signature and docstring",
+    "answer_d" : "To enhance the speed of the wrapped function",
+    "answer_e" : null,
+    "answer_f" : null
+  },
+  "correct_answers" : {
+    "answer_a_correct" : "false",
+    "answer_b_correct" : "false",
+    "answer_c_correct" : "true",
+    "answer_d_correct" : "false",
+    "answer_e_correct" : "false",
+    "answer_f_correct" : "false"
+  }
+} ]

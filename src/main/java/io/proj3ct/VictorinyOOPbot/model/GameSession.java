@@ -7,6 +7,7 @@ public class GameSession {
     private Long currentCategoryId;
     private int correctAnswersCount = 0;
     private final Set<Long> askedQuestions = new HashSet<>();
+    private QuestionFromApi currentApiQuestion;
 
     public Long getCurrentCategoryId() {
         return currentCategoryId;
@@ -30,5 +31,33 @@ public class GameSession {
 
     public void addAskedQuestion(Long questionId) {
         askedQuestions.add(questionId);
+    }
+
+    public QuestionFromApi getCurrentApiQuestion() {
+        return currentApiQuestion;
+    }
+
+    public void setCurrentApiQuestion(QuestionFromApi currentApiQuestion) {
+        this.currentApiQuestion = currentApiQuestion;
+    }
+
+    private final Set<String> askedApiQuestions = new HashSet<>();
+
+    public Set<String> getAskedApiQuestions() {
+        return askedApiQuestions;
+    }
+
+    public void addAskedApiQuestion(String questionId) {
+        askedApiQuestions.add(questionId);
+    }
+
+    private Long currentQuestionId;
+
+    public Long getCurrentQuestionId() {
+        return currentQuestionId;
+    }
+
+    public void setCurrentQuestionId(Long currentQuestionId) {
+        this.currentQuestionId = currentQuestionId;
     }
 }
