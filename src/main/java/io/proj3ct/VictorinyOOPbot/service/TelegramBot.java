@@ -83,7 +83,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 session.setCurrentCategoryId(categoryId);
 
 
-                if (categoryId == -1L) { // Категория из API
+                if (categoryId == -1L) {
                     sendQuestionFromApi(chatId);
                 } else {
                     Category selectedCategory = categoryService.getCategoryById(categoryId);
@@ -100,15 +100,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             } else if (callbackData.startsWith("API_ANSWER_")) {
                 String userAnswerKey = callbackData.split("_")[2];
-
-                // Проверяем правильность ответа
-                boolean isCorrect = quizApiService.checkApiAnswer(userAnswerKey, session.getCurrentApiQuestion().getCorrectAnswers());
-
-                if (isCorrect) {
-                    sendMessage(chatId, "Верно! Молодец!", false);
-                } else {
-                    sendMessage(chatId, "Неправильно. Попробуй ещё раз!", false);
-                }
+                checkAnswerApi(chatId, userAnswerKey);
             }
 
         } else if (update.hasMessage() && update.getMessage().hasText()) {
@@ -280,25 +272,14 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
 
         long categoryId = session.getCurrentCategoryId();
-        boolean isCorrect;
 
-        // Если категория ID -1 (API-опрос), проверяем ответ через QuizApiService
         if (categoryId == -1) {
-            QuestionFromApi questionFromApi = session.getCurrentApiQuestion(); // Получаем текущий вопрос из сессии
-
-            if (questionFromApi == null) {
-                sendMessage(chatId, "Ошибка! Вопрос не найден.", false);
-                return;
-            }
-
-            // Проверяем правильность ответа через QuizApiService
-            isCorrect = quizApiService.checkApiAnswer("answer_" + answerId, questionFromApi.getCorrectAnswers());
-        } else {
-            // Старая логика для других категорий
-            isCorrect = answersService.isAnswerCorrect(answerId);
+            sendMessage(chatId, "Ошибка! Это не API-опрос.", false);
+            return;
         }
 
-        // Обработка результата
+        boolean isCorrect = answersService.isAnswerCorrect(answerId);
+
         if (isCorrect) {
             session.incrementCorrectAnswers();
             sendMessage(chatId, "Правильный ответ! 🎉", true);
@@ -306,12 +287,39 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage(chatId, "Неправильно. Попробуй ответить на следующий вопрос.", true);
         }
 
-        // Отправка следующего вопроса
-        if (categoryId == -1) {
-            sendQuestionFromApi(chatId); // Отправка вопроса из API
-        } else {
-            sendQuestion(chatId, categoryId); // Отправка обычного вопроса
+        sendQuestion(chatId, categoryId);
+    }
+
+    private void checkAnswerApi(long chatId, String userAnswerKey) {
+        GameSession session = userSessions.get(chatId);
+        if (session == null) {
+            sendMessage(chatId, "Ошибка! Сессия не найдена.", false);
+            return;
         }
+
+        long categoryId = session.getCurrentCategoryId();
+
+        if (categoryId != -1) {
+            sendMessage(chatId, "Ошибка! Это не API-опрос.", false);
+            return;
+        }
+
+        QuestionFromApi questionFromApi = session.getCurrentApiQuestion();
+        if (questionFromApi == null) {
+            sendMessage(chatId, "Ошибка! Вопрос не найден.", false);
+            return;
+        }
+
+        boolean isCorrect = quizApiService.checkApiAnswer(userAnswerKey, questionFromApi.getCorrectAnswers());
+
+        if (isCorrect) {
+            session.incrementCorrectAnswers();
+            sendMessage(chatId, "Правильный ответ! 🎉", true);
+        } else {
+            sendMessage(chatId, "Неправильно. Попробуй ответить на следующий вопрос.", true);
+        }
+
+        sendQuestionFromApi(chatId);
     }
 
 
@@ -325,33 +333,28 @@ public class TelegramBot extends TelegramLongPollingBot {
                 return;
             }
 
-            // Выбираем случайный вопрос
             QuestionFromApi question = questions.get(new Random().nextInt(questions.size()));
 
-            // Сохраняем вопрос в сессии
             GameSession session = userSessions.computeIfAbsent(chatId, id -> new GameSession());
             session.setCurrentApiQuestion(question);
 
-            // Проверка на уже заданный вопрос
             if (session.getAskedApiQuestions().contains(String.valueOf(question.getId()))) {
-                sendQuestionFromApi(chatId); // Рекурсивно вызываем метод, чтобы задать новый вопрос
+                sendQuestionFromApi(chatId);
                 return;
             }
 
             session.addAskedApiQuestion(String.valueOf(question.getId()));
 
-            // Отправляем вопрос пользователю
             StringBuilder messageText = new StringBuilder("Вопрос: " + question.getQuestion() + "\n\n");
 
             InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
             List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
-            // Создаем кнопки для ответов
             for (Map.Entry<String, String> entry : question.getAnswers().entrySet()) {
                 if (entry.getValue() != null) {
                     InlineKeyboardButton button = new InlineKeyboardButton();
                     button.setText(entry.getValue());
-                    button.setCallbackData("API_ANSWER_" + entry.getKey()); // CallbackData для ответа
+                    button.setCallbackData("API_ANSWER_" + entry.getKey());
 
                     List<InlineKeyboardButton> row = new ArrayList<>();
                     row.add(button);
@@ -371,7 +374,6 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage(chatId, "Ошибка при загрузке вопроса: " + e.getMessage(), false);
         }
     }
-
 
 
 }

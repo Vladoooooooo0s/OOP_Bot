@@ -15,6 +15,15 @@ public class Category {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Questions> questions;
 
+    // Конструктор для тестов
+    public Category(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    // Конструктор без параметров (нужен для JPA)
+    public Category() {}
+
     public List<Questions> getQuestions() {
         return questions;
     }
