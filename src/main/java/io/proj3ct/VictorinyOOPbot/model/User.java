@@ -1,5 +1,6 @@
 package io.proj3ct.VictorinyOOPbot.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import java.sql.Timestamp;
@@ -18,20 +19,27 @@ public class User{
 
     private Timestamp registeredAt;
 
-    public String getFirstName() {
-        return firstName;
-    }
+    @Column(name = "max_score", nullable = false)
+    private int maxScore = 0;
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+    @Column(name = "current_score", nullable = false)
+    private int currentScore = 0;
 
+    // Геттеры и сеттеры
     public Long getChatId() {
         return chatId;
     }
 
     public void setChatId(Long chatId) {
         this.chatId = chatId;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     public String getLastName() {
@@ -58,6 +66,22 @@ public class User{
         this.registeredAt = registeredAt;
     }
 
+    public int getMaxScore() {
+        return maxScore;
+    }
+
+    public void setMaxScore(int maxScore) {
+        this.maxScore = maxScore;
+    }
+
+    public int getCurrentScore() {
+        return currentScore;
+    }
+
+    public void setCurrentScore(int currentScore) {
+        this.currentScore = currentScore;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -66,6 +90,8 @@ public class User{
                 ", lastName='" + lastName + '\'' +
                 ", userName='" + userName + '\'' +
                 ", registeredAt=" + registeredAt +
+                ", maxScore=" + maxScore +
+                ", currentScore=" + currentScore +
                 '}';
     }
 }

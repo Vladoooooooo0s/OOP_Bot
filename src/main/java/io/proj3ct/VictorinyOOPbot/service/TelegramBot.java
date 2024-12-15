@@ -41,6 +41,9 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Autowired
     private QuizApiService quizApiService;
 
+    @Autowired
+    private LeaderboardService leaderboardService;
+
     final BotConfig config;
 
     private final Map<Long, GameSession> userSessions = new ConcurrentHashMap<>();
@@ -101,6 +104,9 @@ public class TelegramBot extends TelegramLongPollingBot {
             } else if (callbackData.startsWith("API_ANSWER_")) {
                 String userAnswerKey = callbackData.split("_")[2];
                 checkAnswerApi(chatId, userAnswerKey);
+
+            } else if (callbackData.equals("SHOW_LEADERBOARD")) {
+                sendLeaderboard(chatId);
             }
 
         } else if (update.hasMessage() && update.getMessage().hasText()) {
@@ -109,6 +115,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             if ("Завершить игру".equals(messageText)) {
                 finishGame(chatId);
+            } else if ("Таблица лидеров".equals(messageText)) {
+                sendLeaderboard(chatId);
             } else {
                 switch (messageText) {
                     case "/start":
@@ -117,6 +125,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
                     case "/categories":
                         sendCategoryOptions(chatId);
+                        break;
+                    case "/leaders":
+                        sendLeaderboard(chatId);
                         break;
                     default:
                         sendMessage(chatId, "Invalid request", false);
@@ -166,6 +177,10 @@ public class TelegramBot extends TelegramLongPollingBot {
             KeyboardRow row = new KeyboardRow();
             row.add("Завершить игру");
             keyboard.add(row);
+
+            KeyboardRow row2 = new KeyboardRow();
+            row2.add("Таблица лидеров");
+            keyboard.add(row2);
         }
 
         if (!keyboard.isEmpty()) {
@@ -283,12 +298,16 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (isCorrect) {
             session.incrementCorrectAnswers();
             sendMessage(chatId, "Правильный ответ! 🎉", true);
+
+            // Обновление счёта пользователя
+            leaderboardService.updateUserScore(chatId);
         } else {
             sendMessage(chatId, "Неправильно. Попробуй ответить на следующий вопрос.", true);
         }
 
         sendQuestion(chatId, categoryId);
     }
+
 
     private void checkAnswerApi(long chatId, String userAnswerKey) {
         GameSession session = userSessions.get(chatId);
@@ -315,13 +334,15 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (isCorrect) {
             session.incrementCorrectAnswers();
             sendMessage(chatId, "Правильный ответ! 🎉", true);
+
+            // Обновление счёта пользователя
+            leaderboardService.updateUserScore(chatId);
         } else {
             sendMessage(chatId, "Неправильно. Попробуй ответить на следующий вопрос.", true);
         }
 
         sendQuestionFromApi(chatId);
     }
-
 
 
     private void sendQuestionFromApi(long chatId) {
@@ -374,6 +395,33 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage(chatId, "Ошибка при загрузке вопроса: " + e.getMessage(), false);
         }
     }
+
+
+    public void sendLeaderboard(long chatId) {
+        // Получаем таблицу лидеров
+        List<User> leaderboard = leaderboardService.getLeaderboard();
+
+        // Формируем сообщение
+        StringBuilder leaderboardMessage = new StringBuilder("Топ лидеров:\n");
+        if (leaderboard.isEmpty()) {
+            leaderboardMessage.append("Пока нет данных для отображения.");
+        } else {
+            int rank = 1;
+            for (User user : leaderboard) {
+                leaderboardMessage.append(rank++)
+                        .append(". ")
+                        .append(user.getFirstName())
+                        .append(" - ")
+                        .append(user.getMaxScore())
+                        .append(" баллов\n");
+            }
+        }
+
+        // Отправляем сообщение пользователю
+        sendMessage(chatId, leaderboardMessage.toString(), false);
+    }
+
+
 
 
 }
