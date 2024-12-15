@@ -15,8 +15,6 @@ COPY src ./src
 # Собираем проект с помощью Maven
 RUN mvn clean package -DskipTests
 
-# Устанавливаем рабочую директорию
-WORKDIR /app
 
 # Копируем собранный .jar файл из предыдущего этапа
 COPY --from=build /app/target/VictorinyOOPbot-0.0.1-SNAPSHOT.jar VictorinyOOPbot.jar
