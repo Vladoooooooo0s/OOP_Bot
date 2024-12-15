@@ -4,6 +4,9 @@ FROM openjdk:17-jdk-slim AS build
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
+# Устанавливаем Maven
+RUN apt-get update && apt-get install -y maven
+
 # Копируем файлы pom.xml и исходный код в контейнер
 COPY pom.xml .
 COPY src ./src
