@@ -1,5 +1,5 @@
 # Используем официальный образ OpenJDK
-FROM openjdk:17-jdk-slim AS build
+FROM openjdk:21-jdk-slim AS build
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
@@ -15,7 +15,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Используем образ с Java 17
-FROM openjdk:17-jdk-slim
+FROM openjdk:21-jdk-slim
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
@@ -27,4 +27,4 @@ COPY --from=build /app/target/VictorinyOOPbot-0.0.1-SNAPSHOT.jar VictorinyOOPbot
 EXPOSE 8080
 
 # Команда для запуска приложения
-ENTRYPOINT ["java", "-jar", "VictorinyOOPbot.jar"]
+ENTRYPOINT ["java", "-jar", "VictorinyOOPbot.jar"c]
