@@ -14,7 +14,7 @@ COPY src ./src
 # Собираем проект с помощью Maven
 RUN mvn clean package -DskipTests
 
-# Используем минимальный образ для запуска приложения
+# Используем образ с Java 17
 FROM openjdk:17-jdk-slim
 
 # Устанавливаем рабочую директорию
