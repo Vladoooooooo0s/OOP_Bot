@@ -5,7 +5,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Устанавливаем Maven
-RUN apt-get update && apt-get install -y maven
+RUN apt-get update && apt-get install -y maven && \
     mvn dependency:resolve
 
 # Копируем файлы pom.xml и исходный код в контейнер
