@@ -19,7 +19,6 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Slf4j
 @Component
 public class TelegramBot extends TelegramLongPollingBot {
 
@@ -163,7 +162,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         sendMessage(chatId, answer, false);
         sendCategoryOptions(chatId);
 
-        log.info("Replied to user " + name);
     }
 
 
@@ -194,7 +192,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            log.error("Error occured " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

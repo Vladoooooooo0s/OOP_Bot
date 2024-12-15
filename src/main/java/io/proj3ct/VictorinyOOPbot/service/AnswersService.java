@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Slf4j
 @Service
 public class AnswersService {
 
@@ -22,7 +21,7 @@ public class AnswersService {
     public boolean isAnswerCorrect(Long id) {
         Optional<Answers> answer = getAnswerById(id);
         if (answer.isEmpty()) {
-            log.info("Answer not found for ID: " + id);
+            System.out.println("Answer not found for ID: " + id);
         }
         return answer.map(Answers::isCorrect).orElse(false);
     }
