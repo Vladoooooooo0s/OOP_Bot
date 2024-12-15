@@ -1,11 +1,12 @@
-# Используем официальный образ OpenJDK
-FROM openjdk:17-jdk-slim AS build
+# Используем образ с Java 17
+FROM openjdk:17-jdk-slim
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
 # Устанавливаем Maven
 RUN apt-get update && apt-get install -y maven
+    mvn dependency:resolve
 
 # Копируем файлы pom.xml и исходный код в контейнер
 COPY pom.xml .
@@ -13,9 +14,6 @@ COPY src ./src
 
 # Собираем проект с помощью Maven
 RUN mvn clean package -DskipTests
-
-# Используем образ с Java 17
-FROM openjdk:17-jdk-slim
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
