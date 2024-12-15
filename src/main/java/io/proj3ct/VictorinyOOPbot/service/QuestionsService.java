@@ -11,7 +11,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 public class QuestionsService {
 
@@ -25,14 +24,16 @@ public class QuestionsService {
             return null;
         }
 
-        log.info("Total questions in category: {}", questions.size());
+        System.out.println("Total questions in category: " + questions.size());
 
         List<Questions> availableQuestions = questions.stream()
                 .filter(question -> !askedQuestions.contains(question.getId()))
                 .collect(Collectors.toList());
 
-        log.info("Available questions: {}", availableQuestions.size());
-        availableQuestions.forEach(q -> log.info("Available question ID: {}", q.getId()));
+        System.out.println("Available questions: " + availableQuestions.size());
+        for (Questions q : availableQuestions) {
+            System.out.println("Available question ID: " + q.getId());
+        }
 
         if (availableQuestions.isEmpty()) {
             return null;
